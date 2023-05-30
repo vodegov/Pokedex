@@ -62,6 +62,7 @@
 				D844AD652A25A7EB00847734 /* MainTabBarController.swift */,
 				D844AD672A25A80200847734 /* AllPokemonsViewController.swift */,
 				D844AD682A25A80200847734 /* FavoritesPokemonsViewController.swift */,
+				D844AD732A25B29300847734 /* Network */,
 				D844AD6B2A25AC3C00847734 /* Resources */,
 			);
 			path = Pokedex;
@@ -83,6 +84,13 @@
 				D844AD512A25A6C700847734 /* AppDelegate.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		D844AD732A25B29300847734 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
