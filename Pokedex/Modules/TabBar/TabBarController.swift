@@ -1,6 +1,6 @@
 import UIKit
 
-final class MainTabBarController: UITabBarController
+final class TabBarController: UITabBarController
 {
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -10,10 +10,16 @@ final class MainTabBarController: UITabBarController
     func setupTabBar() {
         
         tabBar.backgroundColor = .darkGray
-        tabBar.tintColor = .black
+//        tabBar.tintColor = .black
+        tabBar.tintColor = #colorLiteral(red: 0.6705882353, green: 0.03921568627, blue: 0.01176470588, alpha: 1)
+        
+        let allPokemonsViewModel = AllPokemonsViewModel()
+        let allPokemonRouter = AllPokemonsRouter()
+        let allPokemonViewController = AllPokemonsViewController(viewModel: allPokemonsViewModel, router: allPokemonRouter)
+        allPokemonRouter.viewController = allPokemonViewController
         
         let allPokemonsViewController = createNavController(
-            vc: AllPokemonsViewController(),
+            vc: allPokemonViewController,
             itemName: "Pokemon",
             itemImage: UIImage(named: "pokeball") ?? UIImage()
         )

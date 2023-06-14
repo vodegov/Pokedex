@@ -10,7 +10,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
         window?.overrideUserInterfaceStyle = .dark
-        window?.rootViewController = MainTabBarController()
+        window?.rootViewController = TabBarController()
 //        window?.rootViewController = ViewController()
         
         return true
