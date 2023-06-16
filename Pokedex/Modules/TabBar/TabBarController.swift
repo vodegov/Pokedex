@@ -38,7 +38,7 @@ final class TabBarController: UITabBarController
     
     func createNavController(vc: UIViewController, itemName: String, itemImage: UIImage) -> UINavigationController {
         
-        let item = UITabBarItem(title: .none, image: itemImage
+        let item = UITabBarItem(title: itemName, image: itemImage
             .withAlignmentRectInsets(
                 .init(top: 10, left: 0, bottom: 0, right: 0)), tag: 0)
         

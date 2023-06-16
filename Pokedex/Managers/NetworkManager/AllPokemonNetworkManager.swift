@@ -1,14 +1,23 @@
 import Foundation
 
-final class AllPokemonNetworkManager
+protocol IAllPokemonNetworkManager: AnyObject
 {
-    func getStartedListPokemon(url: String, completion: @escaping([PokemonEntry]) -> ()) {
+    func getStartedListPokemon(url: String, completion: @escaping([PokemonEntry]) -> (), completionError: @escaping(_ error: String) -> ())
+    func getSearchPokemon(url: String, completion: @escaping(Pokemon) -> (), completionError: @escaping(_ error: String) -> ())
+}
+
+final class AllPokemonNetworkManager: IAllPokemonNetworkManager
+{
+    func getStartedListPokemon(url: String, completion: @escaping([PokemonEntry]) -> (), completionError: @escaping(_ error: String) -> ()) {
         
-        guard let url = URL(string: url) else { fatalError("Missing URL") }
+        guard let url = URL(string: url) else {
+            completionError("Missing URL")
+            return
+        }
         
         let dataTask = URLSession.shared.dataTask(with: url) { (data, response, error) in
-            if let error = error {
-                print("Request error: ", error)
+            if error != nil {
+                completionError("Internet connection lost")
                 return
             }
             guard let response = response as? HTTPURLResponse else { return }
@@ -36,8 +45,8 @@ final class AllPokemonNetworkManager
         }
         
         let dataTask = URLSession.shared.dataTask(with: url) { (data, response, error) in
-            if let error = error {
-                print("Request error: ", error)
+            if error != nil {
+                completionError("Internet connection lost")
                 return
             }
             guard let response = response as? HTTPURLResponse else { return }
@@ -53,7 +62,7 @@ final class AllPokemonNetworkManager
                     }
                 }
             } else {
-                completionError("Missing URL")
+                completionError("Pokémon name or id entered incorrectly")
             }
         }
         dataTask.resume()

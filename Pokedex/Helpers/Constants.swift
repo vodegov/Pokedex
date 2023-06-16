@@ -29,7 +29,7 @@ enum Constants
     
     enum URLs
     {
-        static let allPokemonsUrl = "https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1281"
+        static let allPokemonsUrl = "https://pokeapi.co/api/v2/pokemon/?limit=1281"
         static let searchPokemon = "https://pokeapi.co/api/v2/pokemon/"
         static let pokemonImagePreview = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
     }

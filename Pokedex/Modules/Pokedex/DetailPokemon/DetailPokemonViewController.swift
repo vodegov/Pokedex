@@ -22,6 +22,7 @@ class DetailPokemonViewController: UIViewController
         
     }()
     private var like: Bool = false
+    private let alert = Alert()
     
     
     init(viewModel: IDetailPokemonsViewModel) {
@@ -59,9 +60,12 @@ private extension DetailPokemonViewController
     }
     
     func bind() {
-        self.viewModel.pokemonDownload.drive { [weak self] _ in
+        self.viewModel.pokemonDownloadCompleted.drive { [weak self] _ in
             self?.viewLoader.removeFromSuperview()
             self?.checkOnLiked()
+        }.disposed(by: disposeBag)
+        self.viewModel.pokemonDetailFailed.drive { [weak self] error in
+            self?.showAlertError(title: error)
         }.disposed(by: disposeBag)
     }
     
@@ -103,6 +107,10 @@ private extension DetailPokemonViewController
             target: self,
             action: #selector(btnHeartTapped)
         )
+    }
+    
+    func showAlertError(title: String) {
+        self.alert.showAlertError(title: "Sorry", msg: title, on: self)
     }
 }
 

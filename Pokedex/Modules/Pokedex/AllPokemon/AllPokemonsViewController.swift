@@ -43,16 +43,16 @@ final class AllPokemonsViewController: UIViewController, IAllPokemonsViewControl
 
 private extension AllPokemonsViewController
 {
-    private func showAlert() {
-        self.alert.showAlertIncorrectName(on: self)
+    func showAlertError(msg: String) {
+        self.alert.showAlertBadSearch(msg: msg, on: self)
     }
     
-    private func bind() {
+    func bind() {
         self.viewModel.showDetailPokemonVC.drive { [weak self] url in
             self?.router.showDetailPokemonVC(url: url)
         }.disposed(by: disposeBag)
-        self.viewModel.pokemonSearchFailed.drive { [weak self] _ in
-            self?.showAlert()
+        self.viewModel.pokemonSearchFailed.drive { [weak self] error in
+            self?.showAlertError(msg: error)
         }.disposed(by: disposeBag)
     }
 }

@@ -16,6 +16,7 @@ final class StoregeManager: NSObject, IStoregeManager
 {
     var reloadData = PublishRelay<Void>()
     static let shared = StoregeManager()
+    
     private override init() {}
     
     private var appDelegate: AppDelegate {

@@ -5,7 +5,8 @@ protocol IDetailPokemonsViewModel: AnyObject
 {
     var fetchPokemons: (() -> ())? { get set }
     var pokemonDetail: Driver<Pokemon> { get }
-    var pokemonDownload: Driver<Bool> { get }
+    var pokemonDetailFailed: RxCocoa.Driver<String> { get }
+    var pokemonDownloadCompleted: Driver<Bool> { get }
     var pokemonEvolutionImages: Driver<[String: Data]> { get }
     func getPokemonDetail(url: String)
     func writeToDbPokemon(url: String)
@@ -19,15 +20,19 @@ final class DetailPokemonsViewModel: IDetailPokemonsViewModel
     var pokemonDetail: RxCocoa.Driver<Pokemon> {
         self.pokemonDetailRelay.asDriver(onErrorJustReturn: Pokemon.emptyPokemon)
     }
-    var pokemonDownload: RxCocoa.Driver<Bool> {
-        self.pokemonDownloadRelay.asDriver(onErrorJustReturn: false)
+    var pokemonDetailFailed: RxCocoa.Driver<String> {
+        self.pokemonDetailFailedRelay.asDriver(onErrorJustReturn: "")
+    }
+    var pokemonDownloadCompleted: RxCocoa.Driver<Bool> {
+        self.pokemonDownloadCompletedRelay.asDriver(onErrorJustReturn: false)
     }
     var pokemonEvolutionImages: RxCocoa.Driver<[String: Data]> {
         self.pokemonEvolutionImagesRelay.asDriver(onErrorJustReturn: [:])
     }
     var fetchPokemons: (() -> ())?
     private let pokemonDetailRelay = BehaviorRelay<Pokemon>(value: Pokemon.emptyPokemon)
-    private let pokemonDownloadRelay = PublishRelay<Bool>()
+    private let pokemonDownloadCompletedRelay = PublishRelay<Bool>()
+    private let pokemonDetailFailedRelay = PublishRelay<String>()
     private let pokemonEvolutionImagesRelay = PublishRelay<[String: Data]>()
     private let networkManager = DetailNetworkManager()
     private let dataManager = StoregeManager.shared
@@ -51,10 +56,12 @@ final class DetailPokemonsViewModel: IDetailPokemonsViewModel
                         let arrayOfUrls = self?.getArrayUrls(model: pokemonDetailWithEvolution) ?? []
                         self?.getEvolutionPokemonImages(urls: arrayOfUrls)
                         self?.pokemonDetailRelay.accept(pokemonDetailWithEvolution)
-                        self?.pokemonDownloadRelay.accept(true)
+                        self?.pokemonDownloadCompletedRelay.accept(true)
                     })
                 })
             })
+        } completionError: { [weak self] error in
+            self?.pokemonDetailFailedRelay.accept(error)
         }
     }
     

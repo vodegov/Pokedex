@@ -1,14 +1,23 @@
-
 import Foundation
 
-final class DetailNetworkManager
+protocol IDetailNetworkManager: AnyObject
 {
-    func getDetailPokemon(url: String, completion: @escaping(Pokemon) -> ()) {
+    func getDetailPokemon(url: String, completion: @escaping(Pokemon) -> (), completionError: @escaping(_ error: String) -> ())
+    func getDetailImage(model: Pokemon, url: String, completion: @escaping(Pokemon) -> ())
+    func getInfoAboutPokemon(model: Pokemon, url: String, completion: @escaping (Pokemon) -> ())
+    func getIdPokemon(url: String, completion: @escaping (Int, String) -> ())
+    func getEvolutionPokemonImages(id: Int, completion: @escaping (Data) -> ())
+}
+
+final class DetailNetworkManager: IDetailNetworkManager
+{
+    func getDetailPokemon(url: String, completion: @escaping(Pokemon) -> (),
+                          completionError: @escaping(_ error: String) -> ()) {
         guard let url = URL(string: url) else { fatalError("Missing URL") }
         
         let dataTask = URLSession.shared.dataTask(with: url) { (data, response, error) in
-            if let error = error {
-                print("Request error: ", error)
+            if error != nil {
+                completionError("Internet connection lost")
                 return
             }
             guard let response = response as? HTTPURLResponse else { return }

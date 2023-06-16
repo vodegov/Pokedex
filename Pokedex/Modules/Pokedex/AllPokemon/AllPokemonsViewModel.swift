@@ -38,6 +38,8 @@ final class AllPokemonsViewModel: IAllPokemonsViewModel
         let url = Constants.URLs.allPokemonsUrl
         self.networkManager.getStartedListPokemon(url: url) { [weak self] pokemonEntryArray in
             self?.pokemonArrayRelay.accept(pokemonEntryArray)
+        } completionError: { [weak self] error in
+            self?.pokemonSearchFailedRelay.accept(error)
         }
     }
     

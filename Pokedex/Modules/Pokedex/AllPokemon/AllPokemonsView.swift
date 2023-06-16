@@ -9,6 +9,7 @@ final class AllPokemonsView: UIView
     private let viewModel: IAllPokemonsViewModel
     private let disposeBag = DisposeBag()
     private var pokemonArray: [PokemonEntry] = []
+    private let placeholderText = "Enter the name of the Pokemon"
     
     init(viewModel: IAllPokemonsViewModel) {
         self.viewModel = viewModel
@@ -35,15 +36,19 @@ private extension AllPokemonsView
         self.addGestureRecognizer(tap)
     }
     
+    
     func configureTableView() {
         self.pokemonTableView.delegate = self
         self.pokemonTableView.dataSource = self
         self.pokemonTableView.register(AllPokemonsTableViewCell.self,
                                 forCellReuseIdentifier: "AllPokemonsTableViewCell")
+        self.pokemonTableView.keyboardDismissMode = .onDrag
+        self.pokemonTableView.showsVerticalScrollIndicator = false
     }
     
     func buildUI() {
         self.addSubview(self.searchBar)
+        self.searchBar.placeholder = self.placeholderText
         self.searchBar.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
             make.horizontalEdges.equalToSuperview()
