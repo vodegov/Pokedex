@@ -1,17 +1,21 @@
 import Foundation
-import RxRelay
 import RxCocoa
 
 protocol IDetailPokemonsViewModel: AnyObject
 {
+    var fetchPokemons: (() -> ())? { get set }
     var pokemonDetail: Driver<Pokemon> { get }
     var pokemonDownload: Driver<Bool> { get }
     var pokemonEvolutionImages: Driver<[String: Data]> { get }
     func getPokemonDetail(url: String)
+    func writeToDbPokemon(url: String)
+    func deleteFromDbPokemon()
+    func haveAPokemon(url: String) -> Bool
 }
 
 final class DetailPokemonsViewModel: IDetailPokemonsViewModel
 {
+    // MARK: - var/let
     var pokemonDetail: RxCocoa.Driver<Pokemon> {
         self.pokemonDetailRelay.asDriver(onErrorJustReturn: Pokemon.emptyPokemon)
     }
@@ -21,21 +25,25 @@ final class DetailPokemonsViewModel: IDetailPokemonsViewModel
     var pokemonEvolutionImages: RxCocoa.Driver<[String: Data]> {
         self.pokemonEvolutionImagesRelay.asDriver(onErrorJustReturn: [:])
     }
-    private let pokemonDetailRelay = PublishRelay<Pokemon>()
+    var fetchPokemons: (() -> ())?
+    private let pokemonDetailRelay = BehaviorRelay<Pokemon>(value: Pokemon.emptyPokemon)
     private let pokemonDownloadRelay = PublishRelay<Bool>()
     private let pokemonEvolutionImagesRelay = PublishRelay<[String: Data]>()
     private let networkManager = DetailNetworkManager()
+    private let dataManager = StoregeManager.shared
     private let pokemonMaper = PokemonMaper()
+    
+    // MARK: - func
     
     func getPokemonDetail(url: String) {
         self.networkManager.getDetailPokemon(url: url) { [weak self] pokemonDetail in
             
-            guard let urlImage = self?.pokemonMaper.getPokemonImageUrl(model: pokemonDetail) else { return }
-            guard let urlInfo = self?.pokemonMaper.getUrlAboutPokemon(model: pokemonDetail) else { return }
+            let urlImage = self?.pokemonMaper.getPokemonImageUrl(model: pokemonDetail)
+            let urlInfo = self?.pokemonMaper.getUrlAboutPokemon(model: pokemonDetail)
             
-            self?.networkManager.getDetailImage(model: pokemonDetail, url: urlImage, completion: { [weak self] pokemonDetailWithImage in
+            self?.networkManager.getDetailImage(model: pokemonDetail, url: urlImage ?? "", completion: { [weak self] pokemonDetailWithImage in
                 
-                self?.networkManager.getInfoAboutPokemon(model: pokemonDetailWithImage, url: urlInfo, completion: { [weak self] pokemonDetailWithInfo in
+                self?.networkManager.getInfoAboutPokemon(model: pokemonDetailWithImage, url: urlInfo ?? "", completion: { [weak self] pokemonDetailWithInfo in
                     
                     guard let urlEvolution = self?.pokemonMaper.getUrlAboutEvolutionPokemon(model: pokemonDetailWithInfo) else { return }
                     self?.networkManager.getEvolutionPokemon(model: pokemonDetailWithInfo, url: urlEvolution, completion: { [weak self] pokemonDetailWithEvolution in
@@ -43,13 +51,38 @@ final class DetailPokemonsViewModel: IDetailPokemonsViewModel
                         let arrayOfUrls = self?.getArrayUrls(model: pokemonDetailWithEvolution) ?? []
                         self?.getEvolutionPokemonImages(urls: arrayOfUrls)
                         self?.pokemonDetailRelay.accept(pokemonDetailWithEvolution)
+                        self?.pokemonDownloadRelay.accept(true)
                     })
                 })
             })
         }
     }
+    
+    func haveAPokemon(url: String) -> Bool {
+        self.dataManager.fetchPokemon(url: url) != nil
+    }
+    
+    func writeToDbPokemon(url: String) {
+        let pokemon = pokemonDetailRelay.value
+        let genus = self.pokemonMaper.getPokemonGenus(model: pokemon)
+        let model = CreatePokemonModel(id: String(pokemon.aboutPokemon?.id ?? 0),
+                                       name: pokemon.name,
+                                       url: url,
+                                       imageData: pokemon.image,
+                                       type: pokemon.types.first?.type.name,
+                                       genus: genus)
+        self.dataManager.createPokemon(model: model)
+        self.fetchPokemons?()
+    }
+    
+    func  deleteFromDbPokemon() {
+        let pokemon = pokemonDetailRelay.value
+        self.dataManager.deletePokemon(name: pokemon.name)
+        self.fetchPokemons?()
+    }
 }
 
+// MARK: - extension
 private extension DetailPokemonsViewModel
 {
     func getArrayUrls(model: Pokemon) -> [String] {
@@ -81,7 +114,6 @@ private extension DetailPokemonsViewModel
                 self?.networkManager.getEvolutionPokemonImages(id: id, completion: { dataImage in
                     tempDict[name] = dataImage
                     self?.pokemonEvolutionImagesRelay.accept(tempDict)
-                    self?.pokemonDownloadRelay.accept(true)
                 })
             })
         }

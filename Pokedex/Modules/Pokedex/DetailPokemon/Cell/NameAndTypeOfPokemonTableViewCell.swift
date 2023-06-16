@@ -33,18 +33,20 @@ class NameAndTypeOfPokemonTableViewCell: UITableViewCell
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    func configure(name: String, genus: String, model: [Types]) {
-        self.nameLabel.text = name
-        self.genusLabel.text = genus
-        if typeStackView.arrangedSubviews.isEmpty {
-            for type in model {
-                self.typeStackView.addArrangedSubview(UIImageView.init(image: UIImage(named: "icon-\(type.type.name)")))
-            }
-        }
-        
-    }
+}
 
+extension NameAndTypeOfPokemonTableViewCell: ITableViewCell
+{
+    typealias Model = NameCellModel
+    
+    func configure(model: NameCellModel) {
+        self.nameLabel.text = model.name.capitalized
+        self.genusLabel.text = model.genus
+        self.typeStackView.arrangedSubviews.forEach({$0.removeFromSuperview()})
+        model.modelType?.forEach {
+            self.typeStackView.addArrangedSubview(UIImageView.init(image: UIImage(named: "icon-\($0.type.name)")))
+        }
+    }
 }
 
 private extension NameAndTypeOfPokemonTableViewCell

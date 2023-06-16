@@ -14,12 +14,6 @@ final class SegmentControlTableViewCell: UITableViewCell
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    @objc func segmentControllChanged() {
-        let index = self.segmentControll.selectedSegmentIndex
-        segmentControllHandler?(index)
-    }
-
 }
 
 private extension SegmentControlTableViewCell
@@ -39,5 +33,10 @@ private extension SegmentControlTableViewCell
         self.segmentControll.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
+    }
+    
+    @objc func segmentControllChanged() {
+        let index = self.segmentControll.selectedSegmentIndex
+        segmentControllHandler?(index)
     }
 }

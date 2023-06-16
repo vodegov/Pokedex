@@ -1,6 +1,6 @@
 import UIKit
 
-final class AboutViewTableViewCell: UITableViewCell
+final class AboutTableViewCell: UITableViewCell
 {
     private lazy var aboutLabel: UILabel = {
         let aboutLabel = UILabel()
@@ -12,16 +12,16 @@ final class AboutViewTableViewCell: UITableViewCell
     }()
     private lazy var viewForInfo: UIView = {
         let viewForInfo = UIView()
-        viewForInfo.layer.cornerRadius = Layout.radiusViewInfo
+        viewForInfo.layer.cornerRadius = LocalConstant.Layout.radiusViewInfo
         viewForInfo.backgroundColor = #colorLiteral(red: 0.1098039216, green: 0.1254901961, blue: 0.1333333333, alpha: 1)
         viewForInfo.layer.opacity = 0.7
         
         return viewForInfo
     }()
-    
     private let weightLabel = UILabel()
     private let heightLabel = UILabel()
     private let experienceLabel = UILabel()
+    private let catchRateLabel = UILabel()
         
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -33,18 +33,24 @@ final class AboutViewTableViewCell: UITableViewCell
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+}
+
+extension AboutTableViewCell: ITableViewCell
+{
+    typealias Model = AboutCellModel
     
-    func configure(about: String, weight: Int, height: Int, experience: Int) {
-        self.aboutLabel.text = about
-        let doubleHeight = Double(height)
-        let doubleWeight = Double(weight)
-        self.weightLabel.text = "\(doubleWeight / 10)kg"
-        self.heightLabel.text = "\(doubleHeight / 10)m"
-        self.experienceLabel.text = "\(experience)"
+    func configure(model: AboutCellModel) {
+        self.aboutLabel.text = model.about
+        let doubleHeight = Double(model.height ?? 0)
+        let doubleWeight = Double(model.weight ?? 0)
+        self.weightLabel.text = "\(doubleWeight / LocalConstant.coefficientForSize)kg"
+        self.heightLabel.text = "\(doubleHeight / LocalConstant.coefficientForSize)m"
+        self.experienceLabel.text = "\(model.experience ?? 0)"
+        self.catchRateLabel.text = "\(model.catchRate ?? 0)"
     }
 }
 
-private extension AboutViewTableViewCell
+private extension AboutTableViewCell
 {
     func buildUI() {
         self.backgroundColor = .clear
@@ -60,12 +66,12 @@ private extension AboutViewTableViewCell
         self.contentView.addSubview(viewForInfo)
         self.viewForInfo.snp.makeConstraints { make in
             make.top.equalTo(self.aboutLabel.snp.bottom)
-                .inset(-Layout.verticalSpace)
+                .inset(-LocalConstant.Layout.verticalSpace)
             make.horizontalEdges.equalToSuperview()
                 .inset(Constants.Layout.horizontalSpace)
-            make.height.equalTo(Layout.heightViewForInfo)
+            make.height.equalTo(LocalConstant.Layout.heightViewForInfo)
             make.bottom.equalToSuperview()
-                .inset(Layout.verticalSpace)
+                .inset(LocalConstant.Layout.verticalSpace)
         }
         
         let lineSeparatorTop = UIView()
@@ -74,9 +80,9 @@ private extension AboutViewTableViewCell
         lineSeparatorTop.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.top.equalToSuperview()
-                .inset(25)
-            make.height.equalTo(50)
-            make.width.equalTo(2)
+                .inset(LocalConstant.Layout.smallVerticalSpace)
+            make.height.equalTo(LocalConstant.Layout.heightLineSeporator)
+            make.width.equalTo(LocalConstant.Layout.widthLineSeporator)
         }
         
         let lineSeparatorBottom = UIView()
@@ -85,18 +91,18 @@ private extension AboutViewTableViewCell
         lineSeparatorBottom.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview()
-                .inset(25)
-            make.height.equalTo(50)
-            make.width.equalTo(2)
+                .inset(LocalConstant.Layout.smallVerticalSpace)
+            make.height.equalTo(LocalConstant.Layout.heightLineSeporator)
+            make.width.equalTo(LocalConstant.Layout.widthLineSeporator)
         }
         
         let weightConteiner = UIView()
         self.viewForInfo.addSubview(weightConteiner)
         weightConteiner.snp.makeConstraints { make in
             make.top.equalToSuperview()
-                .inset(24)
+                .inset(LocalConstant.Layout.smallVerticalSpace)
             make.leading.equalToSuperview()
-                .inset(42)
+                .inset(LocalConstant.Layout.leftSpace)
         }
         let weightImage = UIImageView()
         weightImage.image = UIImage(named: "weight")
@@ -107,11 +113,10 @@ private extension AboutViewTableViewCell
         
         weightConteiner.addSubview(weightLabel)
         self.weightLabel.textColor = .white
-        self.weightLabel.text = "85.5kg"
         self.weightLabel.snp.makeConstraints { make in
             make.verticalEdges.equalToSuperview()
             make.leading.equalTo(weightImage.snp.trailing)
-                .inset(-8)
+                .inset(-Constants.Layout.verticalSpace)
             make.trailing.equalToSuperview()
         }
         
@@ -122,16 +127,16 @@ private extension AboutViewTableViewCell
         weightNameLabel.snp.makeConstraints { make in
             make.centerX.equalTo(weightConteiner)
             make.top.equalTo(weightConteiner.snp.bottom)
-                .inset(-8)
+                .inset(-Constants.Layout.verticalSpace)
         }
         
         let heightConteiner = UIView()
         self.viewForInfo.addSubview(heightConteiner)
         heightConteiner.snp.makeConstraints { make in
             make.top.equalToSuperview()
-                .inset(24)
+                .inset(LocalConstant.Layout.smallVerticalSpace)
             make.trailing.equalToSuperview()
-                .inset(58)
+                .inset(LocalConstant.Layout.leftSpace)
         }
         let heightImage = UIImageView()
         heightImage.image = UIImage(systemName: "arrow.up")
@@ -146,7 +151,7 @@ private extension AboutViewTableViewCell
         self.heightLabel.snp.makeConstraints { make in
             make.verticalEdges.equalToSuperview()
             make.leading.equalTo(heightImage.snp.trailing)
-                .inset(-8)
+                .inset(-Constants.Layout.verticalSpace)
             make.trailing.equalToSuperview()
         }
         
@@ -157,16 +162,15 @@ private extension AboutViewTableViewCell
         heightNameLabel.snp.makeConstraints { make in
             make.centerX.equalTo(heightConteiner)
             make.top.equalTo(heightConteiner.snp.bottom)
-                .inset(-8)
+                .inset(-Constants.Layout.verticalSpace)
         }
         
         let experienceConteiner = UIView()
         self.viewForInfo.addSubview(experienceConteiner)
         experienceConteiner.snp.makeConstraints { make in
             make.bottom.equalToSuperview()
-                .inset(64)
-            make.leading.equalToSuperview()
-                .inset(42)
+                .inset(LocalConstant.Layout.bigVerticalSpace)
+            make.centerX.equalTo(weightConteiner)
         }
         
         let experienceImage = UIImageView()
@@ -182,7 +186,7 @@ private extension AboutViewTableViewCell
         self.experienceLabel.snp.makeConstraints { make in
             make.verticalEdges.equalToSuperview()
             make.leading.equalTo(experienceImage.snp.trailing)
-                .inset(-8)
+                .inset(-Constants.Layout.verticalSpace)
             make.trailing.equalToSuperview()
         }
         
@@ -193,15 +197,59 @@ private extension AboutViewTableViewCell
         experienceNameLabel.snp.makeConstraints { make in
             make.centerX.equalTo(experienceConteiner)
             make.top.equalTo(experienceConteiner.snp.bottom)
-                .inset(-8)
+                .inset(-Constants.Layout.verticalSpace)
         }
-
+        
+        let catchRateConteiner = UIView()
+        self.viewForInfo.addSubview(catchRateConteiner)
+        catchRateConteiner.snp.makeConstraints { make in
+            make.top.equalTo(experienceConteiner)
+            make.centerX.equalTo(heightConteiner)
+        }
+        
+        let catchRateImage = UIImageView()
+        catchRateImage.image = UIImage(systemName: "percent")
+        catchRateImage.tintColor = .lightGray
+        catchRateConteiner.addSubview(catchRateImage)
+        catchRateImage.snp.makeConstraints { make in
+            make.leading.verticalEdges.equalToSuperview()
+        }
+        
+        catchRateConteiner.addSubview(self.catchRateLabel)
+        self.catchRateLabel.textColor = .white
+        self.catchRateLabel.snp.makeConstraints { make in
+            make.verticalEdges.equalToSuperview()
+            make.leading.equalTo(catchRateImage.snp.trailing)
+                .inset(-Constants.Layout.verticalSpace)
+            make.trailing.equalToSuperview()
+        }
+        
+        let catchRateNameLabel = UILabel()
+        catchRateNameLabel.textColor = .darkGray
+        catchRateNameLabel.text = "Catch rate"
+        self.viewForInfo.addSubview(catchRateNameLabel)
+        catchRateNameLabel.snp.makeConstraints { make in
+            make.centerX.equalTo(catchRateConteiner)
+            make.top.equalTo(catchRateConteiner.snp.bottom)
+                .inset(-Constants.Layout.verticalSpace)
+        }
     }
 }
 
-fileprivate enum Layout
+fileprivate enum LocalConstant
 {
-    static let radiusViewInfo: CGFloat = 8
-    static let verticalSpace: CGFloat = 32
-    static let heightViewForInfo: CGFloat = 200
+    static let coefficientForSize: Double = 10
+    
+    enum Layout
+    {
+        static let radiusViewInfo: CGFloat = 8
+        static let verticalSpace: CGFloat = 32
+        static let smallVerticalSpace: CGFloat = 25
+        static let bigVerticalSpace = 60
+        static let heightViewForInfo: CGFloat = 200
+        static let heightLineSeporator = 50
+        static let widthLineSeporator = 2
+        static let leftSpace = 42
+        static let rightSpace = 58
+    }
 }

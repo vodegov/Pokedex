@@ -9,7 +9,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return stackView
     }()
-    
     private lazy var statsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -17,7 +16,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return stackView
     }()
-    
     private lazy var marksStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -25,7 +23,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return stackView
     }()
-    
     private lazy var hpLabel: UILabel = {
         let hplabel = UILabel()
         hplabel.textColor = .white
@@ -35,7 +32,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return hplabel
     }()
-    
     private lazy var hpMarkStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -43,7 +39,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return stackView
     }()
-    
     private lazy var attackLabel: UILabel = {
         let atackLabel = UILabel()
         atackLabel.textColor = .white
@@ -53,7 +48,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return atackLabel
     }()
-    
     private lazy var attackMarkStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -61,7 +55,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return stackView
     }()
-    
     private lazy var defenseLabel: UILabel = {
         let defenceLabel = UILabel()
         defenceLabel.textColor = .white
@@ -71,7 +64,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return defenceLabel
     }()
-    
     private lazy var defenseMarkStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -79,7 +71,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return stackView
     }()
-    
     private lazy var specialAttackLabel: UILabel = {
         let specialAtackLabel = UILabel()
         specialAtackLabel.textColor = .white
@@ -89,7 +80,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return specialAtackLabel
     }()
-    
     private lazy var specialAttackMarkStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -97,7 +87,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return stackView
     }()
-    
     private lazy var specialDefenseLabel: UILabel = {
         let specialDefenceLabel = UILabel()
         specialDefenceLabel.textColor = .white
@@ -107,7 +96,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return specialDefenceLabel
     }()
-    
     private lazy var specialDefenseMarkStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -115,7 +103,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return stackView
     }()
-    
     private lazy var speedLabel: UILabel = {
         let speedLabel = UILabel()
         speedLabel.textColor = .white
@@ -125,7 +112,6 @@ final class StatsTableViewCell: UITableViewCell
         
         return speedLabel
     }()
-    
     private lazy var speedMarkStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -133,37 +119,53 @@ final class StatsTableViewCell: UITableViewCell
         
         return stackView
     }()
-    
     private let descriptiontText = "The ranges shown on the right are for a level 100 Pokémon. Maximum values are based on a beneficial nature, 252 EVs, 31 IVs; minimum values are based on a hindering nature, 0 EVs, 0 IVs."
-    
-    
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
         self.buildUI()
-        
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    func configure(hp: Int, attack: Int, defense: Int, specialAttack: Int, specialDefense: Int, speed: Int, color: UIColor) {
-        self.hpLabel.text = "\(hp)"
-        self.createArrayView(mark: hp, color: color, stackView: hpMarkStackView)
-        self.attackLabel.text = "\(attack)"
-        self.createArrayView(mark: attack, color: color, stackView: attackMarkStackView)
-        self.defenseLabel.text = "\(defense)"
-        self.createArrayView(mark: defense, color: color, stackView: defenseMarkStackView)
-        self.specialAttackLabel.text = "\(specialAttack)"
-        self.createArrayView(mark: specialAttack, color: color, stackView: specialAttackMarkStackView)
-        self.specialDefenseLabel.text = "\(specialDefense)"
-        self.createArrayView(mark: specialDefense, color: color, stackView: specialDefenseMarkStackView)
-        self.speedLabel.text = "\(speed)"
-        self.createArrayView(mark: speed, color: color, stackView: speedMarkStackView)
-    }
+}
 
+extension StatsTableViewCell: ITableViewCell
+{
+    typealias Model = StatsCellModel
+    
+    func configure(model: StatsCellModel) {
+        self.hpLabel.text = "\(model.hp)"
+        self.createArrayView(mark: model.hp,
+                             color: model.color,
+                             stackView: hpMarkStackView)
+        
+        self.attackLabel.text = "\(model.attack)"
+        self.createArrayView(mark: model.attack,
+                             color: model.color,
+                             stackView: attackMarkStackView)
+        
+        self.defenseLabel.text = "\(model.defense)"
+        self.createArrayView(mark: model.defense,
+                             color: model.color,
+                             stackView: defenseMarkStackView)
+        
+        self.specialAttackLabel.text = "\(model.specialAttack)"
+        self.createArrayView(mark: model.specialAttack,
+                             color: model.color,
+                             stackView: specialAttackMarkStackView)
+        
+        self.specialDefenseLabel.text = "\(model.specialDefense)"
+        self.createArrayView(mark: model.specialDefense,
+                             color: model.color,
+                             stackView: specialDefenseMarkStackView)
+        
+        self.speedLabel.text = "\(model.speed)"
+        self.createArrayView(mark: model.speed,
+                             color: model.color,
+                             stackView: speedMarkStackView)
+    }
 }
 
 private extension StatsTableViewCell
@@ -177,8 +179,7 @@ private extension StatsTableViewCell
             make.leading.equalToSuperview()
                 .inset(Constants.Layout.horizontalSpace)
             make.top.equalToSuperview()
-                .inset(32)
-            
+                .inset(Layout.verticalSpace)
         }
         
         self.addElementsToNameStatsStackView()
@@ -201,11 +202,11 @@ private extension StatsTableViewCell
                 .inset(Constants.Layout.horizontalSpace)
         }
 
-        addElementsToMarksStackView()
+        self.addElementsToMarksStackView()
         
         let descriptionLabel = UILabel()
-        descriptionLabel.textColor = #colorLiteral(red: 0.5333333333, green: 0.5333333333, blue: 0.5333333333, alpha: 1)
-        descriptionLabel.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        descriptionLabel.textColor = Constants.Colors.aboutPokemonText
+        descriptionLabel.font = Constants.Fonts.descriptionStatText
         descriptionLabel.text = descriptiontText
         descriptionLabel.numberOfLines = 0
         self.contentView.addSubview(descriptionLabel)
@@ -215,9 +216,8 @@ private extension StatsTableViewCell
             make.horizontalEdges.equalToSuperview()
                 .inset(Constants.Layout.horizontalSpace)
             make.bottom.equalToSuperview()
-                .inset(32)
+                .inset(Layout.verticalSpace)
         }
-        
     }
     
     func addElementsToNameStatsStackView() {
@@ -261,16 +261,16 @@ private extension StatsTableViewCell
         let conteiner = UIView()
         conteiner.transform = CGAffineTransform(rotationAngle: 0.3)
         conteiner.snp.makeConstraints { make in
-            make.width.equalTo(11)
-            make.height.equalTo(35)
+            make.width.equalTo(Layout.widthConteinerViewStat)
+            make.height.equalTo(Layout.heightConteinerViewStat)
         }
         let view = UIView()
         view.layer.cornerRadius = 5
         view.backgroundColor = color
         conteiner.addSubview(view)
         view.snp.makeConstraints { make in
-            make.width.equalTo(11)
-            make.height.equalTo(22)
+            make.width.equalTo(Layout.widthViewStat)
+            make.height.equalTo(Layout.heightViewStat)
             make.centerY.equalToSuperview()
         }
         if isEmpty {
@@ -292,5 +292,13 @@ private extension StatsTableViewCell
             }
         }
     }
-    
+}
+
+fileprivate enum Layout
+{
+    static let heightConteinerViewStat = 35
+    static let widthConteinerViewStat = 11
+    static let heightViewStat = 22
+    static let widthViewStat = 11
+    static let verticalSpace = 32
 }

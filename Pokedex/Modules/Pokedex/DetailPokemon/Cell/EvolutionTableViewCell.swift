@@ -7,7 +7,6 @@ class EvolutionTableViewCell: UITableViewCell
     private let pokemonNameLabel = UILabel()
     private let pokemonTypeImage = UIImageView()
     
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         buildUI()
@@ -16,20 +15,36 @@ class EvolutionTableViewCell: UITableViewCell
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+}
+
+extension EvolutionTableViewCell: ITableViewCell
+{
+    typealias Model = EvolutionCellModel
     
-    func configure(nameFirstStep: String, nameSecondStep: String?, nameThirdStep: String?, idFirstStep: Int, levelFirstText: Int?, levelSecondText: Int?, firsdDataImage: Data, secondDataImage: Data?, thirdDataImage: Data?) {
-        let firstEvolutionStep = createPokemonEvolutionStep(topView: self.contentView, pokemonIdText: idFirstStep, pokemonNameText: nameFirstStep, isFirst: true, isLast: nameSecondStep == nil ? true : false, levelText: levelFirstText ?? 0, dataImage: firsdDataImage)
+    func configure(model: EvolutionCellModel) {
+        let firstEvolutionStep = createPokemonEvolutionStep(topView: self.contentView,
+                                                            pokemonNameText: model.nameFirstStep,
+                                                            isFirst: true,
+                                                            isLast: model.nameSecondStep == "" ? true : false,
+                                                            levelText: model.levelFirstText ?? 0,
+                                                            dataImage: model.firsdDataImage)
         self.contentView.addSubview(firstEvolutionStep)
         
-        let secondEvolutionStep = createPokemonEvolutionStep(topView: firstEvolutionStep, pokemonIdText: idFirstStep, pokemonNameText: nameSecondStep ?? "", isLast: nameThirdStep == nil ? true : false, levelText: levelSecondText ?? 0, dataImage: secondDataImage ?? Data())
+        let secondEvolutionStep = createPokemonEvolutionStep(topView: firstEvolutionStep,
+                                                             pokemonNameText: model.nameSecondStep ?? "",
+                                                             isLast: model.nameThirdStep == "" ? true : false,
+                                                             levelText: model.levelSecondText ?? 0,
+                                                             dataImage: model.secondDataImage)
         self.contentView.addSubview(secondEvolutionStep)
         
-        let thirdEvolutionStep = createPokemonEvolutionStep(topView: secondEvolutionStep, pokemonIdText: idFirstStep, pokemonNameText: nameThirdStep ?? "", isLast: true, levelText: 0, dataImage: thirdDataImage ?? Data())
+        let thirdEvolutionStep = createPokemonEvolutionStep(topView: secondEvolutionStep,
+                                                            pokemonNameText: model.nameThirdStep ?? "",
+                                                            isLast: true, levelText: 0,
+                                                            dataImage: model.thirdDataImage)
         self.contentView.addSubview(thirdEvolutionStep)
         
         
     }
-
 }
 
 private extension EvolutionTableViewCell
@@ -39,7 +54,12 @@ private extension EvolutionTableViewCell
         self.selectionStyle = .none
     }
     
-    func createPokemonEvolutionStep(topView: UIView, pokemonIdText: Int, pokemonNameText: String, isFirst: Bool = false, isLast: Bool = false, levelText: Int, dataImage: Data) -> UIView {
+    func createPokemonEvolutionStep(topView: UIView,
+                                    pokemonNameText: String,
+                                    isFirst: Bool = false,
+                                    isLast: Bool = false,
+                                    levelText: Int,
+                                    dataImage: Data?) -> UIView {
         if pokemonNameText == "" {
             return UIView()
         }
@@ -48,15 +68,15 @@ private extension EvolutionTableViewCell
         conteinerView.snp.makeConstraints { make in
             if isFirst {
                 make.top.equalToSuperview()
-                    .inset(52)
+                    .inset(LocalConstant.Layout.topContreintToSuperview)
             } else {
                 make.top.equalTo(topView.snp.bottom)
-                    .inset(-70)
+                    .inset(-LocalConstant.Layout.topContreintToNextView)
             }
             make.centerX.equalToSuperview()
             if isLast {
                 make.bottom.equalToSuperview()
-                    .inset(32)
+                    .inset(LocalConstant.Layout.botContreintToSuperview)
             }
 
         }
@@ -68,8 +88,8 @@ private extension EvolutionTableViewCell
         backgraundTable.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.leading.equalToSuperview()
-            make.height.equalTo(87)
-            make.width.equalTo(134)
+            make.height.equalTo(LocalConstant.Layout.heightBackgraundTable)
+            make.width.equalTo(LocalConstant.Layout.widthBackgraundTable)
             if isLast {
                 make.bottom.equalToSuperview()
             }
@@ -77,25 +97,15 @@ private extension EvolutionTableViewCell
         
         let pokemonImage = UIImageView()
         pokemonImage.contentMode = .scaleAspectFit
-        pokemonImage.image = UIImage(data: dataImage)
+        if let dataImage = dataImage {
+            pokemonImage.image = UIImage(data: dataImage)
+        } else {
+            pokemonImage.image = UIImage(named: "emptyPokemon")
+        }
         backgraundTable.addSubview(pokemonImage)
         pokemonImage.snp.makeConstraints { make in
             make.horizontalEdges.bottom.equalToSuperview()
-            make.height.equalTo(170)
-        }
-        
-        let pokemonIdLabel = UILabel()
-        pokemonIdLabel.font = Constants.Fonts.aboutPokemonText
-        pokemonIdLabel.textColor = .darkGray
-        pokemonIdLabel.textAlignment = .left
-        pokemonIdLabel.text = "#\(pokemonIdText)"
-        
-        conteinerView.addSubview(pokemonIdLabel)
-        pokemonIdLabel.snp.makeConstraints { make in
-            make.top.equalTo(backgraundTable)
-            make.leading.equalTo(backgraundTable.snp.trailing)
-                .inset(-Constants.Layout.horizontalSpace)
-            make.trailing.equalToSuperview()
+            make.height.equalTo(LocalConstant.Layout.heightPokemonImage)
         }
         
         let pokemonNameLabel = UILabel()
@@ -106,11 +116,10 @@ private extension EvolutionTableViewCell
         
         conteinerView.addSubview(pokemonNameLabel)
         pokemonNameLabel.snp.makeConstraints { make in
-            make.top.equalTo(pokemonIdLabel.snp.bottom)
-                .inset(4)
-            make.leading.equalTo(pokemonIdLabel)
+            make.top.equalTo(backgraundTable)
+            make.leading.equalTo(backgraundTable.snp.trailing)
+                .inset(-Constants.Layout.horizontalSpace)
             make.trailing.equalToSuperview()
-            make.height.equalTo(23)
         }
         
         if !isLast {
@@ -119,7 +128,7 @@ private extension EvolutionTableViewCell
             conteinerView.addSubview(arrowImage)
             arrowImage.snp.makeConstraints { make in
                 make.top.equalTo(backgraundTable.snp.bottom)
-                    .inset(-17)
+                    .inset(-LocalConstant.Layout.spaceArrowToTable)
                 make.centerX.equalTo(backgraundTable)
                 make.bottom.equalToSuperview()
                 
@@ -127,8 +136,10 @@ private extension EvolutionTableViewCell
             
             let levelUpLabel = UILabel()
             conteinerView.addSubview(levelUpLabel)
-            levelUpLabel.font = UIFont(name: "Montserrat", size: 14)
-            levelUpLabel.text = levelText != 0 ? "Level \(levelText)" : "Level unknown"
+            levelUpLabel.font = LocalConstant.fontLevelUp
+            levelUpLabel.text = levelText != 0
+            ? "Level \(levelText)"
+            : "Level unknown"
             levelUpLabel.textColor = .white
             levelUpLabel.snp.makeConstraints { make in
                 make.leading.equalTo(arrowImage.snp.trailing)
@@ -138,5 +149,21 @@ private extension EvolutionTableViewCell
         }
         
         return conteinerView
+    }
+}
+
+fileprivate enum LocalConstant
+{
+    static let fontLevelUp = UIFont(name: "Montserrat", size: 14)
+    
+    enum Layout
+    {
+        static let spaceArrowToTable = 17
+        static let heightPokemonImage = 170
+        static let heightBackgraundTable = 87
+        static let widthBackgraundTable = 134
+        static let botContreintToSuperview = 32
+        static let topContreintToSuperview = 52
+        static let topContreintToNextView = 70
     }
 }

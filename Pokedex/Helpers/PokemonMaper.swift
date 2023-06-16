@@ -2,110 +2,56 @@ import Foundation
 
 final class PokemonMaper
 {
-    func getPokemonImageUrl(model: Pokemon) -> String {
-        let imageUrl = model.sprites.other.home.front_default
-        
-        return imageUrl
+    func getPokemonImageUrl(model: Pokemon?) -> String? {
+        model?.sprites?.other?.home?.front_default
     }
     
-    func getPokemonType(model: Pokemon) -> String {
-        let type = model.types.first?.type.name ?? "Normal"
-        
-        return type
+    func getPokemonType(model: Pokemon?) -> String {
+        model?.types.first?.type.name ?? "Normal"
     }
     
     func getUrlAboutPokemon(model: Pokemon) -> String {
-        let url = model.species.url
-        
-        return url
+        model.species.url
     }
     
-    func getUrlAboutEvolutionPokemon(model: Pokemon) -> String {
-        guard let url = model.aboutPokemon?.evolution_chain.url else { fatalError("") }
-        
-        return url
+    func getUrlAboutEvolutionPokemon(model: Pokemon?) -> String? {
+        model?.aboutPokemon?.evolution_chain.url
     }
     
     
-    func getPokemonGenus(model: Pokemon) -> String? {
-        for i in model.aboutPokemon?.genera ?? [] {
-            if i.language.name == "en" {
-                return i.genus
-            }
-        }
-        return nil
+    func getPokemonGenus(model: Pokemon?) -> String? {
+        model?.aboutPokemon?.genera?.first(where: {$0.language.name == "en"})?.genus
     }
     
-    func getPokemonAboutText(model: Pokemon) -> String? {
-        for i in model.aboutPokemon?.flavor_text_entries ?? [] {
-            if i.language.name == "en", i.version.name == "ruby" {
-                return i.flavor_text
-            }
-        }
-        return nil
+    func getPokemonAboutText(model: Pokemon?) -> String? {
+        model?.aboutPokemon?.flavor_text_entries?.first(where: {$0.language.name == "en" && $0.version.name == "ruby"})?.flavor_text
     }
     
     func getEvolutionDataimage(model: Pokemon, name: String) -> Data? {
-        for i in model.evolution?.chain?.arrayOfIdImage ?? [] {
-            if i.name == name {
-                return i.imageData
-            }
-        }
-        
-        return nil
+        model.evolution?.chain?.arrayOfIdImage?.first(where: {$0.name == name})?.imageData
     }
     
-    func getPokemonHp(model: Pokemon) -> Int? {
-        for i in model.stats {
-            if i.stat.name == "hp" {
-                return i.base_stat
-            }
-        }
-        return nil
+    func getPokemonHp(model: Pokemon?) -> Int {
+        model?.stats.first(where: {$0.stat.name == "hp"})?.base_stat ?? 0
     }
     
-    func getPokemonAttack(model: Pokemon) -> Int? {
-        for i in model.stats {
-            if i.stat.name == "attack" {
-                return i.base_stat
-            }
-        }
-        return nil
+    func getPokemonAttack(model: Pokemon?) -> Int {
+        model?.stats.first(where: {$0.stat.name == "attack"})?.base_stat ?? 0
     }
     
-    func getPokemonDefense(model: Pokemon) -> Int? {
-        for i in model.stats {
-            if i.stat.name == "defense" {
-                return i.base_stat
-            }
-        }
-        return nil
+    func getPokemonDefense(model: Pokemon?) -> Int {
+        model?.stats.first(where: {$0.stat.name == "defense"})?.base_stat ?? 0
     }
     
-    func getPokemonSpecialAttack(model: Pokemon) -> Int? {
-        for i in model.stats {
-            if i.stat.name == "special-attack" {
-                return i.base_stat
-            }
-        }
-        return nil
+    func getPokemonSpecialAttack(model: Pokemon?) -> Int {
+        model?.stats.first(where: {$0.stat.name == "special-attack"})?.base_stat ?? 0
     }
     
-    func getPokemonSpecialDefense(model: Pokemon) -> Int? {
-        for i in model.stats {
-            if i.stat.name == "special-defense" {
-                return i.base_stat
-            }
-        }
-        return nil
+    func getPokemonSpecialDefense(model: Pokemon?) -> Int {
+        model?.stats.first(where: {$0.stat.name == "special-defense"})?.base_stat ?? 0
     }
     
-    func getPokemonSpeed(model: Pokemon) -> Int? {
-        for i in model.stats {
-            if i.stat.name == "speed" {
-                return i.base_stat
-            }
-        }
-        return nil
+    func getPokemonSpeed(model: Pokemon?) -> Int {
+        model?.stats.first(where: {$0.stat.name == "speed"})?.base_stat ?? 0
     }
 }

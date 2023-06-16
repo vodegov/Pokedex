@@ -2,12 +2,17 @@ import RxSwift
 import UIKit
 import SnapKit
 
-final class AllPokemonsViewController: UIViewController
+protocol IAllPokemonsViewController: AnyObject
+{
+    func getPokemons()
+}
+final class AllPokemonsViewController: UIViewController, IAllPokemonsViewController
 {
     private let contentView: AllPokemonsView
     private let viewModel: IAllPokemonsViewModel
     private let disposeBag = DisposeBag()
     private let router: IAllPokemonsRouter
+    private let alert = Alert()
     
     init(viewModel: IAllPokemonsViewModel, router: IAllPokemonsRouter) {
         self.viewModel = viewModel
@@ -27,18 +32,28 @@ final class AllPokemonsViewController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Pokedex"
-        
         self.bind()
-        
+        self.getPokemons()
+    }
+    
+    func getPokemons() {
         self.viewModel.getListPokemons()
+    }
+}
 
+private extension AllPokemonsViewController
+{
+    private func showAlert() {
+        self.alert.showAlertIncorrectName(on: self)
     }
     
     private func bind() {
         self.viewModel.showDetailPokemonVC.drive { [weak self] url in
             self?.router.showDetailPokemonVC(url: url)
         }.disposed(by: disposeBag)
+        self.viewModel.pokemonSearchFailed.drive { [weak self] _ in
+            self?.showAlert()
+        }.disposed(by: disposeBag)
     }
-    
 }
 

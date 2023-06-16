@@ -17,17 +17,18 @@ enum Constants
         static let nameMoveText = UIFont.systemFont(ofSize: 24, weight: .semibold)
         static let nameTextEvolution = UIFont.systemFont(ofSize: 19, weight: .medium)
         static let aboutPokemonText = UIFont.systemFont(ofSize: 14, weight: .regular)
+        static let descriptionStatText = UIFont.systemFont(ofSize: 12, weight: .regular)
     }
     
     enum Layout
     {
         static let horizontalSpace = 24
         static let verticalSpace = 8
+        static let defaultverticalSpace = 16
     }
     
     enum URLs
     {
-//        static let allPokemonsUrl = "https://pokeapi.co/api/v2/pokemon/"
         static let allPokemonsUrl = "https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1281"
         static let searchPokemon = "https://pokeapi.co/api/v2/pokemon/"
         static let pokemonImagePreview = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"

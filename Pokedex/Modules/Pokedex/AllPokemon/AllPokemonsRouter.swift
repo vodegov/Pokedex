@@ -9,15 +9,16 @@ protocol IAllPokemonsRouter: AnyObject
 final class AllPokemonsRouter: IAllPokemonsRouter
 {
     weak var viewController: UIViewController?
-    private let detailPokemonsViewModel = DetailPokemonsViewModel()
-    
     
     func showDetailPokemonVC(url: String) {
-        let vc = DetailPokemonViewController(viewModel: self.detailPokemonsViewModel)
+        let detailPokemonsViewModel = DetailPokemonsViewModel()
+        let vc = DetailPokemonViewController(viewModel: detailPokemonsViewModel)
+        detailPokemonsViewModel.fetchPokemons = { [weak self] in
+            (self?.viewController as? AllPokemonsViewController)?.getPokemons()
+        }
         vc.url = url
         self.viewController?.navigationController?.pushViewController(vc, animated: true)
     }
 }
-
 
 

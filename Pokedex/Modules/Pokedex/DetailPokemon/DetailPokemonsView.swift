@@ -1,4 +1,3 @@
-
 import UIKit
 import RxSwift
 
@@ -27,13 +26,12 @@ final class DetailPokemonsView: UIView
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
 }
 
+// MARK: - private extension
 private extension DetailPokemonsView
 {
     func configure() {
-        self.backgroundColor = .black
         self.configureTableView()
         self.buildUI()
     }
@@ -43,25 +41,6 @@ private extension DetailPokemonsView
         self.detailPokemonTableView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        
-//        self.addSubview(backButton)
-//        self.backButton.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
-//        self.backButton.tintColor = .white
-//        self.backButton.snp.makeConstraints { make in
-//            make.top.equalTo(safeAreaLayoutGuide)
-//                .inset(Constants.Layout.verticalSpace)
-//            make.leading.equalToSuperview()
-//                .inset(Constants.Layout.horizontalSpace)
-//        }
-//        
-//        self.addSubview(likeButton)
-//        self.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-//        self.likeButton.tintColor = .white
-//        self.likeButton.snp.makeConstraints { make in
-//            make.top.equalTo(self.backButton)
-//            make.trailing.equalToSuperview()
-//                .inset(Constants.Layout.horizontalSpace)
-//        }
         
         headerView = UIView(frame: CGRect(x: 0, y: 0, width:self.detailPokemonTableView.frame.width, height: 450))
         headerView.addSubview(imageViewPokemon)
@@ -83,7 +62,7 @@ private extension DetailPokemonsView
                                              forCellReuseIdentifier: "NameAndTypeOfPokemonTableViewCell")
         self.detailPokemonTableView.register(SegmentControlTableViewCell.self,
                                              forCellReuseIdentifier: "SegmentControlTableViewCell")
-        self.detailPokemonTableView.register(AboutViewTableViewCell.self,
+        self.detailPokemonTableView.register(AboutTableViewCell.self,
                                              forCellReuseIdentifier: "AboutViewTableViewCell")
         self.detailPokemonTableView.register(StatsTableViewCell.self,
                                              forCellReuseIdentifier: "StatsTableViewCell")
@@ -97,7 +76,7 @@ private extension DetailPokemonsView
         self.viewModel.pokemonDetail.drive { [weak self] pokemon in
             self?.pokemonDetail = pokemon
             self?.setBackgraundImage()
-            self?.setImagePokemon(dataImage: pokemon.image ?? Data())
+            self?.setImagePokemon(dataImage: pokemon.image)
             self?.detailPokemonTableView.reloadData()
         }.disposed(by: disposeBag)
         
@@ -107,43 +86,131 @@ private extension DetailPokemonsView
     }
     
     func setBackgraundImage() {
-        let imageName = self.pokemonMaper.getPokemonType(model: self.pokemonDetail ?? Pokemon.emptyPokemon)
+        let imageName = self.pokemonMaper.getPokemonType(model: self.pokemonDetail)
         self.detailPokemonTableView.backgroundView = UIImageView(image: UIImage(named: imageName))
     }
     
-    func setImagePokemon(dataImage: Data) {
-        imageViewPokemon.image = UIImage(data: dataImage)
+    func setImagePokemon(dataImage: Data?) {
+        if let dataImage = dataImage {
+            imageViewPokemon.image = UIImage(data: dataImage)
+        } else {
+            imageViewPokemon.image = UIImage(named: "emptyPokemon")
+        }
     }
     
     func segmentControllChanged(index: Int) {
         self.segmentControllIndex = index
         self.detailPokemonTableView.reloadData()
     }
+}
+
+// MARK: - Configure cells
+private extension DetailPokemonsView
+{
+    func configureNameTableViewCell(with indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = detailPokemonTableView.dequeueReusableCell(
+            withIdentifier: "NameAndTypeOfPokemonTableViewCell",
+            for: indexPath) as? NameAndTypeOfPokemonTableViewCell else { return UITableViewCell() }
+        
+        guard let name = self.pokemonDetail?.name else { return cell }
+        let genus = self.pokemonMaper.getPokemonGenus(model: self.pokemonDetail)
+        
+        let model = NameCellModel(name: name,
+                                  genus: genus,
+                                  modelType: pokemonDetail?.types)
+        
+        cell.configure(model: model)
+        
+        return cell
+    }
     
-    func findColorFromType() -> UIColor {
-        let typePokemon = self.pokemonMaper.getPokemonType(model: pokemonDetail ?? Pokemon.emptyPokemon)
-        switch typePokemon {
-        case "bug", "grass":
-            return #colorLiteral(red: 0.3803921569, green: 0.7529411765, blue: 0.5960784314, alpha: 1)
-        case "fire":
-            return #colorLiteral(red: 1, green: 0.7098039216, blue: 0.3215686275, alpha: 1)
-        case "water", "ice":
-            return #colorLiteral(red: 0.2941176471, green: 0.5960784314, blue: 0.7725490196, alpha: 1)
-        case "electric", "dragon":
-            return #colorLiteral(red: 1, green: 0.9495328098, blue: 0.1884809652, alpha: 1)
-        case "poison", "ghost", "psychic":
-            return #colorLiteral(red: 0.631372549, green: 0.5450980392, blue: 0.862745098, alpha: 1)
-        case "normal", "fighting":
-            return #colorLiteral(red: 0.6666666865, green: 0.6666666865, blue: 0.6666666865, alpha: 1)
-        case "fairy":
-            return #colorLiteral(red: 0.9607843137, green: 0.6745098039, blue: 0.737254902, alpha: 1)
-            
-        default:
-            return #colorLiteral(red: 0.6, green: 0.6, blue: 0.6, alpha: 1)
+    func configureSegmentTableViewCell(with indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = detailPokemonTableView.dequeueReusableCell(
+            withIdentifier: "SegmentControlTableViewCell",
+            for: indexPath) as? SegmentControlTableViewCell else { return UITableViewCell() }
+        cell.segmentControllHandler = { [weak self] index in
+            self?.segmentControllChanged(index: index)
         }
+        
+        return cell
+    }
+    
+    func configureAboutTableViewCell(with indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = detailPokemonTableView.dequeueReusableCell(
+            withIdentifier: "AboutViewTableViewCell",
+            for: indexPath) as? AboutTableViewCell else { return UITableViewCell() }
+        let aboutText = self.pokemonMaper.getPokemonAboutText(model: self.pokemonDetail)
+        let replacingAboutText = aboutText?.replacingOccurrences(of: "\n", with: " ")
+        let model = AboutCellModel(about: replacingAboutText,
+                                   weight: self.pokemonDetail?.weight,
+                                   height: self.pokemonDetail?.height,
+                                   experience: self.pokemonDetail?.base_experience,
+                                   catchRate: self.pokemonDetail?.aboutPokemon?.capture_rate)
+        cell.configure(model: model)
+        return cell
+    }
+    
+    func configureStatsTableViewCell(with indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = detailPokemonTableView.dequeueReusableCell(
+            withIdentifier: "StatsTableViewCell",
+            for: indexPath) as? StatsTableViewCell else { return UITableViewCell() }
+        
+        let hpStat = pokemonMaper.getPokemonHp(model: pokemonDetail)
+        let attackStat = pokemonMaper.getPokemonAttack(model: pokemonDetail)
+        let defenseStat = pokemonMaper.getPokemonDefense(model: pokemonDetail)
+        let specialAttackStat = pokemonMaper.getPokemonSpecialAttack(model: pokemonDetail)
+        let specialDefenseStat = pokemonMaper.getPokemonSpecialDefense(model: pokemonDetail)
+        let speedStat = pokemonMaper.getPokemonSpeed(model: pokemonDetail)
+        
+        let model = StatsCellModel(hp: hpStat,
+                                   attack: attackStat,
+                                   defense: defenseStat,
+                                   specialAttack: specialAttackStat,
+                                   specialDefense: specialDefenseStat,
+                                   speed: speedStat,
+                                   color: findColorFromType())
+        
+        cell.configure(model: model)
+        return cell
+    }
+    
+    func configureMovesTableViewCell(with indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = detailPokemonTableView.dequeueReusableCell(
+            withIdentifier: "MovesTableViewCell",
+            for: indexPath) as? MovesTableViewCell else { return UITableViewCell() }
+        cell.setupMovesData(model: self.pokemonDetail?.moves ?? [])
+        return cell
+    }
+    
+    func configureEvolutionTableViewCell(with indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = detailPokemonTableView.dequeueReusableCell(
+            withIdentifier: "EvolutionTableViewCell",
+            for: indexPath) as? EvolutionTableViewCell else { return UITableViewCell() }
+        
+        let firstStepName = pokemonDetail?.evolution?.chain?.species.name ?? ""
+        let secondStepName = pokemonDetail?.evolution?.chain?.evolves_to?.first?.species.name ?? ""
+        let thirdStepName = pokemonDetail?.evolution?.chain?.evolves_to?.first?.evolves_to?.first?.species.name ?? ""
+        let levelFirst = pokemonDetail?.evolution?.chain?.evolves_to?.first?.evolution_details?.first?.min_level ?? 0
+        let levelSecond = pokemonDetail?.evolution?.chain?.evolves_to?.first?.evolves_to?.first?.evolution_details?.first?.min_level ?? 0
+        
+        let model = EvolutionCellModel(nameFirstStep: firstStepName,
+                                       nameSecondStep: secondStepName,
+                                       nameThirdStep: thirdStepName,
+                                       idFirstStep: pokemonDetail?.evolution?.id ?? 0,
+                                       idSecondStep: 0,
+                                       idThirdStep: 0,
+                                       levelFirstText: levelFirst,
+                                       levelSecondText: levelSecond,
+                                       firsdDataImage: self.pokemonEvolutionImages?[firstStepName],
+                                       secondDataImage: self.pokemonEvolutionImages?[secondStepName],
+                                       thirdDataImage: self.pokemonEvolutionImages?[thirdStepName])
+        cell.configure(model: model)
+
+        return cell
     }
 }
 
+// MARK: - UITableViewDataSource
 extension DetailPokemonsView: UITableViewDataSource
 {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -154,99 +221,28 @@ extension DetailPokemonsView: UITableViewDataSource
         
         switch indexPath.row {
         case 0:
-            guard let cell = detailPokemonTableView.dequeueReusableCell(
-                withIdentifier: "NameAndTypeOfPokemonTableViewCell",
-                for: indexPath) as? NameAndTypeOfPokemonTableViewCell else { return UITableViewCell() }
-            
-            guard let name = self.pokemonDetail?.name else { return cell }
-            let genus = self.pokemonMaper.getPokemonGenus(model: self.pokemonDetail ?? Pokemon.emptyPokemon) ?? ""
-            
-            cell.configure(name: name.capitalized, genus: genus, model: pokemonDetail?.types ?? [])
-            
-            return cell
+            return configureNameTableViewCell(with: indexPath)
         case 1:
-            guard let cell = detailPokemonTableView.dequeueReusableCell(
-                withIdentifier: "SegmentControlTableViewCell",
-                for: indexPath) as? SegmentControlTableViewCell else { return UITableViewCell() }
-            cell.segmentControllHandler = { [weak self] index in
-                self?.segmentControllChanged(index: index)
-            }
-            
-            return cell
+            return configureSegmentTableViewCell(with: indexPath)
         case 2:
             switch self.segmentControllIndex {
             case Constants.SegmentControllIndex.About.rawValue:
-                guard let cell = detailPokemonTableView.dequeueReusableCell(
-                    withIdentifier: "AboutViewTableViewCell",
-                    for: indexPath) as? AboutViewTableViewCell else { return UITableViewCell() }
-                let aboutText = self.pokemonMaper.getPokemonAboutText(model: self.pokemonDetail ?? Pokemon.emptyPokemon) ?? ""
-                let replacingAboutText = aboutText.replacingOccurrences(of: "\n", with: " ")
-                cell.configure(about: (replacingAboutText), weight: pokemonDetail?.weight ?? 0, height: pokemonDetail?.height ?? 0, experience: pokemonDetail?.base_experience ?? 0)
-                return cell
-                
+                return configureAboutTableViewCell(with: indexPath)
             case Constants.SegmentControllIndex.Stats.rawValue:
-                guard let cell = detailPokemonTableView.dequeueReusableCell(
-                    withIdentifier: "StatsTableViewCell",
-                    for: indexPath) as? StatsTableViewCell else { return UITableViewCell() }
-                
-                let hpStat = pokemonMaper.getPokemonHp(model: pokemonDetail ?? Pokemon.emptyPokemon) ?? 0
-                let attackStat = pokemonMaper.getPokemonAttack(model: pokemonDetail ?? Pokemon.emptyPokemon) ?? 0
-                let defenseStat = pokemonMaper.getPokemonDefense(model: pokemonDetail ?? Pokemon.emptyPokemon) ?? 0
-                let specialAttackStat = pokemonMaper.getPokemonSpecialAttack(model: pokemonDetail ?? Pokemon.emptyPokemon) ?? 0
-                let specialDefenseStat = pokemonMaper.getPokemonSpecialDefense(model: pokemonDetail ?? Pokemon.emptyPokemon) ?? 0
-                let speedStat = pokemonMaper.getPokemonSpeed(model: pokemonDetail ?? Pokemon.emptyPokemon) ?? 0
-                
-                cell.configure(hp: hpStat,
-                               attack: attackStat,
-                               defense: defenseStat,
-                               specialAttack: specialAttackStat,
-                               specialDefense: specialDefenseStat,
-                               speed: speedStat, color: findColorFromType())
-                return cell
-                
+                return configureStatsTableViewCell(with: indexPath)
             case Constants.SegmentControllIndex.Moves.rawValue:
-                guard let cell = detailPokemonTableView.dequeueReusableCell(
-                    withIdentifier: "MovesTableViewCell",
-                    for: indexPath) as? MovesTableViewCell else { return UITableViewCell() }
-                cell.setupMovesData(model: self.pokemonDetail?.moves ?? [])
-                return cell
-                
+                return configureMovesTableViewCell(with: indexPath)
             case Constants.SegmentControllIndex.Evolutions.rawValue:
-                guard let cell = detailPokemonTableView.dequeueReusableCell(
-                    withIdentifier: "EvolutionTableViewCell",
-                    for: indexPath) as? EvolutionTableViewCell else { return UITableViewCell() }
-                
-                let firstStepName = pokemonDetail?.evolution?.chain?.species.name ?? ""
-                let secondStepName = pokemonDetail?.evolution?.chain?.evolves_to?.first?.species.name
-                let thirdStepName = pokemonDetail?.evolution?.chain?.evolves_to?.first?.evolves_to?.first?.species.name
-                let levelFirst = pokemonDetail?.evolution?.chain?.evolves_to?.first?.evolution_details?.first?.min_level ?? 0
-                let levelSecond = pokemonDetail?.evolution?.chain?.evolves_to?.first?.evolves_to?.first?.evolution_details?.first?.min_level ?? 0
-                
-                cell.configure(nameFirstStep: firstStepName,
-                               nameSecondStep: secondStepName,
-                               nameThirdStep: thirdStepName,
-                               idFirstStep: pokemonDetail?.evolution?.id ?? 0,
-                               levelFirstText: levelFirst,
-                               levelSecondText: levelSecond,
-                               firsdDataImage: self.pokemonEvolutionImages?[firstStepName] ?? Data(),
-                               secondDataImage: self.pokemonEvolutionImages?[secondStepName ?? ""] ?? Data(),
-                               thirdDataImage: self.pokemonEvolutionImages?[thirdStepName ?? ""] ?? Data())
-                
-                
-                return cell
+                return configureEvolutionTableViewCell(with: indexPath)
             default:
                 return UITableViewCell()
             }
-            
-            
         default: return UITableViewCell()
         }
-        
     }
-    
-    
 }
 
+// MARK: - UITableViewDelegate
 extension DetailPokemonsView: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -259,4 +255,68 @@ extension DetailPokemonsView: UITableViewDelegate
     }
 }
 
+// MARK: - Configure color of type
+extension DetailPokemonsView
+{
+    func findColorFromType() -> UIColor {
+        let typePokemon = self.pokemonMaper.getPokemonType(model: pokemonDetail)
+        
+        switch typePokemon {
+        case PokemonType.bug.rawValue, PokemonType.grass.rawValue:
+            return PokemonType.bug.color
+        case PokemonType.fire.rawValue:
+            return PokemonType.fire.color
+        case PokemonType.water.rawValue, PokemonType.ice.rawValue:
+            return PokemonType.water.color
+        case PokemonType.electric.rawValue, PokemonType.dragon.rawValue:
+            return PokemonType.electric.color
+        case PokemonType.poison.rawValue, PokemonType.ghost.rawValue, PokemonType.psychic.rawValue:
+            return PokemonType.poison.color
+        case PokemonType.normal.rawValue, PokemonType.fighting.rawValue:
+            return PokemonType.normal.color
+        case PokemonType.fairy.rawValue:
+            return PokemonType.fairy.color
+        default:
+            return PokemonType.other.color
+        }
+    }
+}
 
+enum PokemonType: String {
+    case bug = "bug"
+    case grass = "grass"
+    case fire = "fire"
+    case water = "water"
+    case ice = "ice"
+    case electric = "electric"
+    case dragon = "dragon"
+    case poison = "poison"
+    case ghost = "ghost"
+    case psychic = "psychic"
+    case normal = "normal"
+    case fighting = "fighting"
+    case fairy = "fairy"
+    case other = "other"
+    
+    var color: UIColor {
+        switch self {
+            
+        case .bug, .grass:
+            return #colorLiteral(red: 0.3803921569, green: 0.7529411765, blue: 0.5960784314, alpha: 1)
+        case .fire:
+            return #colorLiteral(red: 1, green: 0.7098039216, blue: 0.3215686275, alpha: 1)
+        case .water, .ice:
+            return #colorLiteral(red: 0.2941176471, green: 0.5960784314, blue: 0.7725490196, alpha: 1)
+        case .electric, .dragon:
+            return #colorLiteral(red: 1, green: 0.9495328098, blue: 0.1884809652, alpha: 1)
+        case .poison, .ghost, .psychic:
+            return #colorLiteral(red: 0.631372549, green: 0.5450980392, blue: 0.862745098, alpha: 1)
+        case .normal, .fighting:
+            return #colorLiteral(red: 0.6666666865, green: 0.6666666865, blue: 0.6666666865, alpha: 1)
+        case .fairy:
+            return #colorLiteral(red: 0.9607843137, green: 0.6745098039, blue: 0.737254902, alpha: 1)
+        case .other:
+            return #colorLiteral(red: 0.6666666865, green: 0.6666666865, blue: 0.6666666865, alpha: 1)
+        }
+    }
+}

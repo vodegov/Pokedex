@@ -18,14 +18,10 @@ final class MovesTableViewCell: UITableViewCell
     func setupMovesData(model: [Moves]) {
         self.movesData = model
     }
-    
 }
 
 private extension MovesTableViewCell
 {
-    func buildUI() {
-        
-    }
     
     func makeCollectionView() -> UICollectionView {
         let layout = UICollectionViewFlowLayout()
@@ -45,7 +41,7 @@ private extension MovesTableViewCell
         self.contentView.addSubview(collectionView)
         self.collectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.height.equalTo(300)
+            make.height.equalTo(Layout.heightCollectionView)
         }
     }
 }
@@ -67,8 +63,11 @@ extension MovesTableViewCell: UICollectionViewDataSource, UICollectionViewDelega
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         return CGSize(width: collectionView.frame.width,
-                      height: 70)
+                      height: Layout.heightCollectionViewCell)
     }
-    
-    
+}
+fileprivate enum Layout
+{
+    static let heightCollectionView = 300
+    static let heightCollectionViewCell: CGFloat = 70
 }

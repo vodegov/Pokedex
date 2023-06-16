@@ -8,10 +8,8 @@ final class TabBarController: UITabBarController
     }
     
     func setupTabBar() {
-        
-        tabBar.backgroundColor = .darkGray
-//        tabBar.tintColor = .black
-        tabBar.tintColor = #colorLiteral(red: 0.6705882353, green: 0.03921568627, blue: 0.01176470588, alpha: 1)
+        tabBar.backgroundColor = Constants.Colors.background
+        tabBar.tintColor = Constants.Colors.defaulText
         
         let allPokemonsViewModel = AllPokemonsViewModel()
         let allPokemonRouter = AllPokemonsRouter()
@@ -24,43 +22,33 @@ final class TabBarController: UITabBarController
             itemImage: UIImage(named: "pokeball") ?? UIImage()
         )
         
+        let favoritesPokemonsViewModel = FavoritesPokemonsViewModel()
+        let favoritesPokemonRouter = FavoritesPokemonsRouter()
+        let favoritesPokemonViewController = FavoritesPokemonsViewController(viewModel: favoritesPokemonsViewModel, router: favoritesPokemonRouter)
+        favoritesPokemonRouter.viewController = favoritesPokemonViewController
+        
         let favoritesPokemonsViewController = createNavController(
-            vc: FavoritesPokemonsViewController(),
+            vc: favoritesPokemonViewController,
             itemName: "Favorites",
             itemImage: UIImage(systemName: "heart.fill") ?? UIImage()
         )
         
-        viewControllers = [
-            allPokemonsViewController,
-            favoritesPokemonsViewController,
-        ]
+        viewControllers = [allPokemonsViewController, favoritesPokemonsViewController]
     }
     
     func createNavController(vc: UIViewController, itemName: String, itemImage: UIImage) -> UINavigationController {
         
-        let item = UITabBarItem(title: itemName, image: itemImage
-                .withAlignmentRectInsets(
-                    .init(top: 10,
-                          left: 0,
-                          bottom: 0,
-                          right: 0
-                         )
-                ),
-            tag: 0
-        )
+        let item = UITabBarItem(title: .none, image: itemImage
+            .withAlignmentRectInsets(
+                .init(top: 10, left: 0, bottom: 0, right: 0)), tag: 0)
         
-        item.titlePositionAdjustment = .init(
-            horizontal: 0,
-            vertical: 5
-        )
+        item.titlePositionAdjustment = .init(horizontal: 0, vertical: 5)
         
-        let navController = UINavigationController(
-            rootViewController: vc
-        )
+        let navController = UINavigationController(rootViewController: vc)
         navController.tabBarItem = item
         
         return navController
     }
-
+    
 }
 

@@ -3,6 +3,8 @@ import RxSwift
 
 class DetailPokemonViewController: UIViewController
 {
+    // MARK: - var/let
+    
     var url = String()
     private let contentView: DetailPokemonsView
     private let viewModel: IDetailPokemonsViewModel
@@ -37,20 +39,17 @@ class DetailPokemonViewController: UIViewController
     }
    
     // MARK: - viewDidLoad
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationController?.navigationBar.tintColor = .white
         self.setLoaderView()
-        configureNavBar()
         self.viewModel.getPokemonDetail(url: url)
         self.bind()
     }
-
 }
 
 // MARK: - extension
-
-extension DetailPokemonViewController
+private extension DetailPokemonViewController
 {
     func setLoaderView() {
         self.view.addSubview(viewLoader)
@@ -62,28 +61,48 @@ extension DetailPokemonViewController
     func bind() {
         self.viewModel.pokemonDownload.drive { [weak self] _ in
             self?.viewLoader.removeFromSuperview()
+            self?.checkOnLiked()
         }.disposed(by: disposeBag)
     }
     
-    func configureNavBar() {
-        let qwe = UIButton(type: .system)
-        qwe.setImage(UIImage(systemName: "heart"), for: .normal)
-        qwe.tintColor = .white
-        self.navigationController?.navigationBar.tintColor = .white
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"),
-                                                                 style: .plain, target: self, action: #selector(btnHeartTapped))
-    }
-    
     @objc func btnHeartTapped() {
-        print("tapped")
         if like == false {
-            self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart.fill"),
-                                                                     style: .plain, target: self, action: #selector(btnHeartTapped))
+            self.enableHeartButton()
+            self.viewModel.writeToDbPokemon(url: self.url)
         } else {
-            self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"),
-                                                                     style: .plain, target: self, action: #selector(btnHeartTapped))
+            self.disableHeartButton()
+            self.viewModel.deleteFromDbPokemon()
         }
         self.like.toggle()
+    }
+    
+    func checkOnLiked() {
+        let checkOnHavePokemon = self.viewModel.haveAPokemon(url: self.url)
+        if checkOnHavePokemon {
+            self.like = true
+            self.enableHeartButton()
+        } else {
+            self.like = false
+            self.disableHeartButton()
+        }
+    }
+    
+    func enableHeartButton() {
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "heart.fill"),
+            style: .plain,
+            target: self,
+            action: #selector(btnHeartTapped)
+        )
+    }
+    
+    func disableHeartButton() {
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "heart"),
+            style: .plain,
+            target: self,
+            action: #selector(btnHeartTapped)
+        )
     }
 }
 

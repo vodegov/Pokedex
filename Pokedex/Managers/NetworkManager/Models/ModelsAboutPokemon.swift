@@ -7,7 +7,8 @@ struct AboutPokemon: Decodable
     let flavor_text_entries: [Flavor]?
     let evolution_chain: UrlEvolution
     let name: String
-    static let emptyAboutPokemon = AboutPokemon(id: 0, genera: [], flavor_text_entries: [], evolution_chain: UrlEvolution(url: ""), name: "")
+    let capture_rate: Int?
+    static let emptyAboutPokemon = AboutPokemon(id: 0, genera: [], flavor_text_entries: [], evolution_chain: UrlEvolution(url: ""), name: "", capture_rate: 0)
 }
 
 struct GeneraPokemon: Decodable

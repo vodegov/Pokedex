@@ -30,7 +30,11 @@ final class DetailNetworkManager
     
     func getDetailImage(model: Pokemon, url: String, completion: @escaping(Pokemon) -> ()) {
         var resultPokemon: Pokemon = model
-        guard let url = URL(string: url) else { fatalError("Missing Url") }
+        guard let url = URL(string: url) else {
+            print("Missing Url")
+            completion(resultPokemon)
+            return
+        }
         
         let dataTask = URLSession.shared.dataTask(with: url) { (data, response, error) in
             if let error = error {

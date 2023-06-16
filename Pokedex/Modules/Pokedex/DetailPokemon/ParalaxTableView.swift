@@ -17,10 +17,11 @@ final class ParalaxTableView: UITableView
         }
         
         let offsetY = -contentOffset.y
+        let speedView: CGFloat = 20
         self.heightConstraint?.constant = max(header.bounds.height - 50, header.bounds.height + offsetY)
         self.bottomConstraint?.constant = offsetY >= 0
         ? 0
-        : offsetY / 20
+        : offsetY / speedView
         header.clipsToBounds = offsetY <= 0
     }
 }

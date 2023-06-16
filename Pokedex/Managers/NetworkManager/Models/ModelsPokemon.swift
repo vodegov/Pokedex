@@ -5,10 +5,10 @@ struct Pokemon: Decodable
     let name: String
     let weight: Int
     let height: Int
-    let base_experience: Int
+    let base_experience: Int?
     let types: [Types]
     let stats: [Stats]
-    let sprites: MainImage
+    let sprites: MainImage?
     let species: Species
     var aboutPokemon: AboutPokemon?
     var evolution: Evolution?
@@ -41,17 +41,17 @@ struct StatName: Decodable
 
 struct MainImage: Decodable
 {
-    let other: Image
+    let other: Image?
 }
 
 struct Image: Decodable
 {
-    let home: URLImage
+    let home: URLImage?
 }
 
 struct URLImage: Decodable
 {
-    let front_default: String
+    let front_default: String?
 }
 
 struct Species: Decodable

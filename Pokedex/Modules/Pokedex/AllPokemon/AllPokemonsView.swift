@@ -22,6 +22,7 @@ final class AllPokemonsView: UIView
     }
 }
 
+// MARK: - private extension
 private extension AllPokemonsView
 {
     func configure() {
@@ -83,10 +84,11 @@ private extension AllPokemonsView
     }
 }
 
+// MARK: - UITableViewDataSource
 extension AllPokemonsView: UITableViewDataSource
 {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        pokemonArray.count
+        self.pokemonArray.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -96,15 +98,16 @@ extension AllPokemonsView: UITableViewDataSource
         let pokemon = self.pokemonArray[indexPath.row]
         
         let urlImage = Constants.URLs.pokemonImagePreview + "\(indexPath.row + 1).png"
+        let id = indexPath.row + 1
         
-        cell.configure(name: pokemon.name.capitalized, url: urlImage)
+        let model = AllPokemonsCellModel(id: id, name: pokemon.name.capitalized, url: urlImage)
+        cell.configure(model: model)
         
         return cell
     }
-    
-    
 }
 
+// MARK: - UITableViewDelegate
 extension AllPokemonsView: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -115,13 +118,19 @@ extension AllPokemonsView: UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        100
+        Layout.heightTableViewCell
     }
 }
 
+// MARK: - UISearchBarDelegate
 extension AllPokemonsView: UISearchBarDelegate
 {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         self.searchButtonTapped()
     }
+}
+
+fileprivate enum Layout
+{
+    static let heightTableViewCell: CGFloat = 100
 }

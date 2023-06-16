@@ -6,6 +6,7 @@ protocol IAllPokemonsViewModel: AnyObject
 {
     var pokemonArray: Driver<[PokemonEntry]> { get }
     var pokemonSearch: Driver<String> { get }
+    var pokemonSearchFailed: Driver<String> { get }
     var showDetailPokemonVC: Driver<String> { get }
     func getListPokemons()
     func getSearchPokemon(name: String)
@@ -20,11 +21,15 @@ final class AllPokemonsViewModel: IAllPokemonsViewModel
     var pokemonSearch: Driver<String> {
         self.pokemonSearchRelay.asDriver(onErrorJustReturn: "")
     }
+    var pokemonSearchFailed: Driver<String> {
+        self.pokemonSearchFailedRelay.asDriver(onErrorJustReturn: "")
+    }
     var showDetailPokemonVC: Driver<String> {
         self.showDetailPokemonVCRelay.asDriver(onErrorJustReturn: "")
     }
     private let pokemonArrayRelay = PublishRelay<[PokemonEntry]>()
     private let pokemonSearchRelay = PublishRelay<String>()
+    private let pokemonSearchFailedRelay = PublishRelay<String>()
     private let showDetailPokemonVCRelay = PublishRelay<String>()
     private let networkManager = AllPokemonNetworkManager()
     
@@ -41,6 +46,8 @@ final class AllPokemonsViewModel: IAllPokemonsViewModel
         self.networkManager.getSearchPokemon(url: url) { [weak self] _ in
             self?.pokemonSearchRelay.accept(url)
             
+        } completionError: { [weak self] error in
+            self?.pokemonSearchFailedRelay.accept(error)
         }
     }
     

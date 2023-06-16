@@ -5,7 +5,6 @@ final class MovesCollectionViewCell: UICollectionViewCell
     private lazy var nameLabel: UILabel = {
         let nameLabel = UILabel()
         nameLabel.textColor = .white
-//        nameLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         nameLabel.font = Constants.Fonts.nameMoveText
         
         return nameLabel
@@ -13,8 +12,7 @@ final class MovesCollectionViewCell: UICollectionViewCell
     
     override init(frame: CGRect) {
         super .init(frame: frame)
-        
-        buildUI()
+        self.buildUI()
     }
     
     required init?(coder: NSCoder) {
