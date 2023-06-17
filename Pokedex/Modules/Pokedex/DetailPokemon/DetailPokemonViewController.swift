@@ -23,6 +23,7 @@ class DetailPokemonViewController: UIViewController
     }()
     private var like: Bool = false
     private let alert = Alert()
+    private let appDelegate = AppDelegate()
     
     
     init(viewModel: IDetailPokemonsViewModel) {
@@ -67,6 +68,11 @@ private extension DetailPokemonViewController
         self.viewModel.pokemonDetailFailed.drive { [weak self] error in
             self?.showAlertError(title: error)
         }.disposed(by: disposeBag)
+        
+        self.appDelegate.errorHandler = { [weak self] error in
+            self?.showAlertError(title: error)
+        }
+        
     }
     
     @objc func btnHeartTapped() {

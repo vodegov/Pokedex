@@ -8,7 +8,7 @@ final class SegmentControlTableViewCell: UITableViewCell
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        configure()
+        self.configure()
     }
     
     required init?(coder: NSCoder) {
@@ -23,7 +23,7 @@ private extension SegmentControlTableViewCell
         self.segmentControll.selectedSegmentIndex = 0
         self.segmentControll.isSpringLoaded = true
         self.segmentControll.addTarget(self, action: #selector(segmentControllChanged), for: .valueChanged)
-        buildUI()
+        self.buildUI()
     }
     
     func buildUI() {
@@ -37,6 +37,6 @@ private extension SegmentControlTableViewCell
     
     @objc func segmentControllChanged() {
         let index = self.segmentControll.selectedSegmentIndex
-        segmentControllHandler?(index)
+        self.segmentControllHandler?(index)
     }
 }

@@ -5,6 +5,7 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var errorHandler:  ((String) -> ())?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -20,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let container = NSPersistentContainer(name: "PokemonDataModel")
         container.loadPersistentStores { description, error in
             if let error {
-                print(error.localizedDescription)
+                self.errorHandler?("\(error)")
             }   
         }
         return container
@@ -32,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             do {
                 try context.save()
             } catch {
-                fatalError(error.localizedDescription)
+                self.errorHandler?("\(error)")
             }
         }
     }
